@@ -1,0 +1,6 @@
+.env
+.webpack
+.serverless
+node_modules
+lib
+.DS_Store

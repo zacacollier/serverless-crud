@@ -1,0 +1,153 @@
+service: notepaddb
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+# Enable auto-packing of external modules
+custom:
+  webpack: ./webpack.config.js
+  webpackIncludeModules: true
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-east-1
+  environment:
+    PGHOST: ${file(./config/env.js):env.PGHOST}
+    PGUSER: ${file(./config/env.js):env.PGUSER}
+    PGPASSWORD: ${file(./config/env.js):env.PGPASSWORD}
+    PGDATABASE: ${file(./config/env.js):env.PGDATABASE}
+    PGPORT: ${file(./config/env.js):env.PGPORT}
+    COGNITO_POOL_ID: ${file(./config/env.js):env.COGNITO_POOL_ID}
+  vpc:
+    securityGroupIds:
+      - sg-84810ffb
+    subnetIds:
+      - subnet-48cbc265
+      - subnet-8991e4b5
+      - subnet-b930a0b5
+      - subnet-c31e1a98
+      - subnet-c34407a6
+      - subnet-cd4bb285
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+        - ec2:CreateNetworkInterface
+        - ec2:DescribeNetworkInterfaces
+        - ec2:DeleteNetworkInterface
+      Resource: "*"
+
+functions:
+  getNotes:
+    handler: src/handler.getAllNotes
+    events:
+      - http:
+          method: get
+          path: notes
+          cors: true
+          authorizer: aws_iam
+  getNoteById:
+    handler: src/handler.getNoteById
+    events:
+      - http:
+          method: get
+          path: notes/{id}
+          cors: true
+          authorizer: aws_iam
+  getNotesByAuthor:
+    handler: src/handler.getNotesByAuthor
+    events:
+      - http:
+          method: get
+          path: authors/{id}/notes
+          cors: true
+          authorizer: aws_iam
+
+resources:
+  Resources:
+    AWSLambdaVPCAccessExecutionRole:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        Roles:
+          - {"Ref": "IamRoleLambdaExecution"}
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:PutLogEvents"
+                - "ec2:CreateNetworkInterface"
+                - "ec2:DescribeNetworkInterfaces"
+                - "ec2:DeleteNetworkInterface"
+              Resource: "*"
+
+# you can overwrite defaults here
+#  stage: dev
+#  region: us-east-1
+
+# you can add statements to the Lambda function's IAM Role here
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+#    events:
+#      - http:
+#          path: users/create
+#          method: get
+#      - s3: ${env:BUCKET}
+#      - schedule: rate(10 minutes)
+#      - sns: greeter-topic
+#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+#      - alexaSkill
+#      - iot:
+#          sql: "SELECT * FROM 'some_topic'"
+#      - cloudwatchEvent:
+#          event:
+#            source:
+#              - "aws.ec2"
+#            detail-type:
+#              - "EC2 Instance State-change Notification"
+#            detail:
+#              state:
+#                - pending
+#      - cloudwatchLog: '/aws/lambda/hello'
+#      - cognitoUserPool:
+#          pool: MyUserPool
+#          trigger: PreSignUp
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+#resources:
+#  Resources:
+#    NewResource:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: my-new-bucket
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"

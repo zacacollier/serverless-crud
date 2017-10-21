@@ -1,0 +1,4 @@
+{
+  "RDS_URI": "postgres://notepaddb.cmvzeyhlxgfi.us-east-1.rds.amazonaws.com",
+  "COGNITO_POOL_ID": "us-east-1_uTWm0xsQP"
+}
