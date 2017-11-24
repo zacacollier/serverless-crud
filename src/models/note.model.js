@@ -1,17 +1,16 @@
 // @flow
 import debug from 'debug'
 import uuidv4 from 'uuid'
-import * as Services from '../services'
+import {
+  createOrUpdate,
+  getAll,
+  getById,
+} from '../controllers'
 import type {
   GetById,
   Fields,
   ServiceResponse,
-} from '../services'
-const {
-  createOrUpdate,
-  getAll,
-  getById,
-} = Services
+} from '../controllers'
 
 const log = debug('notes:models:note.model')
 

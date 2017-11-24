@@ -1,5 +1,4 @@
 // @flow
-
 import type { Client } from '../postgres'
 export type Table =
   | 'notes'
@@ -23,7 +22,3 @@ export type PGResponse = {
 export type ServiceResponse = PGResponse & {
   client: Client
 }
-
-export { getAll, getById } from './read.service'
-export { createOrUpdate } from './create.service'
-export { update } from './update.service'

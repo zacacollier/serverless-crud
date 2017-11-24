@@ -1,17 +1,22 @@
 // @flow
+// import debug from 'debug'
 import pool from '../postgres'
 import type { Client } from '../postgres'
 import type {
+  PGResponse,
+  ServiceResponse,
+} from '../controllers'
+import type {
   Table,
   Fields,
-  ServiceResponse,
-  PGResponse,
 } from './'
 
-export const update = (
+// const log = debug('notes:services:create')
+
+export const createOrUpdate = (
   table: Table,
   fields: Fields,
-  query: (Fields) => string
+  query: (Fields) => string | Error
 ): Promise<ServiceResponse> =>
   pool.connect()
     .then((client: Client) =>

@@ -1,8 +1,8 @@
 // @flow
-import * as Services from '../services'
+import * as Services from '../controllers'
 import type {
   GetById,
-} from '../services'
+} from '../controllers'
 const {
   getAll,
   getById,
