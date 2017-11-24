@@ -3,6 +3,7 @@ const { generateErrors } = require('./helpers/generateErrors')
 const { isEmpty } = require('lodash')
 const {
   createNote,
+  deleteNote,
   updateNote,
   getAllNotes,
   getNotesByAuthor,
@@ -66,6 +67,7 @@ module.exports.getNotesByAuthor = (event, context, callback) => {
 
   context.callbackWaitsForEmptyEventLoop = false
   const { id } = event.pathParameters
+  if (!id) throw new Error('no ID provided')
 
   return getNotesByAuthor(id)
     .then(({ client, rows }) => {
@@ -118,6 +120,24 @@ module.exports.updateNote = (event, context, callback) => {
   if (!isEmpty(errors)) throw new Error(JSON.stringify(errors))
 
   return updateNote({ title, body, author, id })
+    .then(({ client, rows }) => {
+
+      const response = buildResponse(rows)
+      client.release(true)
+      context.succeed(response)
+      return callback(null, response)
+
+    })
+    .catch(err => new Error(err))
+
+}
+
+module.exports.deleteNote = (event, context, callback) => {
+
+  context.callbackWaitsForEmptyEventLoop = false
+  const { id } = event.pathParameters
+
+  return deleteNote({ id })
     .then(({ client, rows }) => {
 
       const response = buildResponse(rows)

@@ -85,6 +85,15 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  deleteNote:
+    handler: src/handler.deleteNote
+    events:
+      - http:
+          method: delete
+          path: notes/{id}
+          cors: true
+          authorizer: aws_iam
+
 resources:
   Resources:
     AWSLambdaVPCAccessExecutionRole:

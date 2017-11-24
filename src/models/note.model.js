@@ -1,8 +1,9 @@
 // @flow
-import debug from 'debug'
+// import debug from 'debug'
 import uuidv4 from 'uuid'
 import {
   createOrUpdate,
+  deleteById,
   getAll,
   getById,
 } from '../controllers'
@@ -12,7 +13,7 @@ import type {
   ServiceResponse,
 } from '../controllers'
 
-const log = debug('notes:models:note.model')
+// const log = debug('notes:models:note.model')
 
 export const updateNoteQuery = ({ title, body, id, author }: Fields) =>
   id
@@ -52,38 +53,27 @@ const getNoteByIdOptions: GetById = {
   id: '',
 }
 
+
 // Models
 export const getAllNotes = () =>
   getAll('notes')
     .then(({ rows, client }: ServiceResponse) =>
       ({ rows, client }))
 
-//    getAll()
-
 export const getNotesByAuthor = (authorId: string) =>
   getById({ ...getNotesByAuthorOptions, id: authorId })
     .then(({ rows, client }: ServiceResponse) =>
       ({ rows, client }))
-
-// getNotesByAuthor('larry_david_cognito_id').then(res => log(res))
 
 export const getNoteById = (noteId: string) =>
   getById({ ...getNoteByIdOptions, id: noteId })
     .then(({ rows, client }: ServiceResponse) =>
       ({ rows, client }))
 
-//   getNoteById('31f3b791-50ae-4632-aadf-eab7c6477041')
-
 export const createNote = (fields: Fields) =>
   createOrUpdate('notes', fields, createNoteQuery)
     .then(({ rows, client }: ServiceResponse) =>
       ({ rows, client }))
-
-//   createNote({
-//     title: 'my fifth note',
-//     body: 'literally my fifth note',
-//     author: 'larry_david_cognito_id',
-//   })
 
 export const updateNote = (fields: Fields) =>
   createOrUpdate('notes', fields, updateNoteQuery)
@@ -91,8 +81,8 @@ export const updateNote = (fields: Fields) =>
       ({ rows, client }))
     .catch(err => err)
 
-// updateNote({
-//   title: 'my sixth note',
-//   body: 'absolutely my sixth note',
-//   author: 'larry_david_cognito_id',
-// },'e8ba5ba1-973f-458a-a500-8bc2fd713a16')
+export const deleteNote = (fields: Fields) =>
+  deleteById('notes', fields)
+    .then(({ rows, client }: ServiceResponse) =>
+      ({ rows, client }))
+    .catch(err => err)

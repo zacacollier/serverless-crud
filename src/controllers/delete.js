@@ -1,5 +1,4 @@
 // @flow
-// import debug from 'debug'
 import pool from '../postgres'
 import type { Client } from '../postgres'
 import type {
@@ -9,16 +8,15 @@ import type {
   Fields,
 } from './'
 
-// const log = debug('notes:services:create')
+const deleteRowQuery = ({ id, table }) =>
+  id
+    ? `DELETE FROM ${table} where id = ${id};`
+    : new Error('delete: no id provided')
 
-export const createOrUpdate = (
-  table: Table,
-  fields: Fields,
-  query: (Fields) => string | Error
-): Promise<ServiceResponse> =>
+export const deleteById = (table: Table, { id }: Fields): Promise<ServiceResponse> =>
   pool.connect()
     .then((client: Client) =>
-      client.query(query(fields))
+      client.query(deleteRowQuery({ id, table }))
         .then(({ rows }: PGResponse): ServiceResponse =>
           ({ rows, client })
         )
