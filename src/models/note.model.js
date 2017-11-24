@@ -90,6 +90,7 @@ export const updateNote = (fields: Fields) =>
   createOrUpdate('notes', fields, updateNoteQuery)
     .then(({ rows, client }: ServiceResponse) =>
       ({ rows, client }))
+    .catch(err => err)
 
 // updateNote({
 //   title: 'my sixth note',

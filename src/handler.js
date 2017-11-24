@@ -1,7 +1,9 @@
 require('babel-polyfill')
-const { reduce, isEmpty, isNil } = require('lodash')
+const { generateErrors } = require('./helpers/generateErrors')
+const { isEmpty } = require('lodash')
 const {
   createNote,
+  updateNote,
   getAllNotes,
   getNotesByAuthor,
   getNoteById,
@@ -85,22 +87,37 @@ module.exports.createNote = (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false
   const { title, body, author } = JSON.parse(event.body)
 
-  const requiredFields = { title, body, author }
-  const errors = reduce(requiredFields, (acc, value, key) => {
-
-    if (value === '' || isNil(value)) {
-      return {
-        ...acc,
-        [key]: `Error: '${key}' is required`
-      }
-    }
-    return acc
-
-  }, {})
+  const requiredFields = ['title', 'body', 'author']
+  const errors = generateErrors(requiredFields, { title, body, author })
 
   if (!isEmpty(errors)) throw new Error(JSON.stringify(errors))
 
   return createNote({ title, body, author })
+    .then(({ client, rows }) => {
+
+      const response = buildResponse(rows)
+      client.release(true)
+      context.succeed(response)
+      return callback(null, response)
+
+    })
+    .catch(err => new Error(err))
+
+}
+
+module.exports.updateNote = (event, context, callback) => {
+
+  if (!event.body) throw new Error('no body provided')
+
+  context.callbackWaitsForEmptyEventLoop = false
+  const { title, body, author, id } = JSON.parse(event.body)
+
+  const requiredFields = ['title', 'body', 'author', 'id']
+  const errors = generateErrors(requiredFields, { title, body, author, id })
+
+  if (!isEmpty(errors)) throw new Error(JSON.stringify(errors))
+
+  return updateNote({ title, body, author, id })
     .then(({ client, rows }) => {
 
       const response = buildResponse(rows)
