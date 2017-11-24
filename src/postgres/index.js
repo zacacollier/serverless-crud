@@ -2,6 +2,9 @@
 import pg from 'pg'
 require('dotenv').config()
 
+export type Client = pg.Client
+export type Connection = Promise<Client>
+
 // eslint-disable-next-line
 const {
   PGDATABASE,
@@ -30,5 +33,4 @@ const pool = new pg.Pool({
   idleTimeoutMillis: PG_IDLE_TIMEOUT_MILLIS || 6000,
   connectionTimeoutMillis: PG_CONNECTION_TIMEOUT_MILLIS || 2000,
 })
-export type Connection = Promise<pg.Client>
 export default pool

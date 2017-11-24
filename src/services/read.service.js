@@ -1,7 +1,8 @@
 // @flow
 // import debug from 'debug'
 import pool from '../postgres'
-import type { Connection } from '../postgres'
+import type { Client } from '../postgres'
+import type { Table } from './'
 import type {
   GetById,
   PGResponse,
@@ -10,7 +11,7 @@ import type {
 
 // const log = debug('notes:services:read')
 
-const getAllQuery = (table: string) => `
+const getAllQuery = (table: Table) => `
   SELECT * FROM ${table};
 `
 const getByIdQuery = ({ table, key, id }: GetById) => `
@@ -19,34 +20,27 @@ const getByIdQuery = ({ table, key, id }: GetById) => `
 `
 
 // TODO: pg flow declares
-export const getAll = (table: string): Promise<Connection> =>
+export const getAll = (table: Table): Promise<ServiceResponse> =>
   pool.connect()
-    .then((client) => {
-
-      return client.query(getAllQuery(table))
+    .then((client: Client) =>
+      client.query(getAllQuery(table))
         .then(({ rows }: PGResponse): ServiceResponse =>
-          ({
-            rows,
-            client,
-          })
-        )
-        .catch((err) => new Error(err))
-
-    })
-    .catch(err => new Error(err))
-
-
-export const getById = (options: GetById): Promise<*> =>
-  pool.connect()
-    .then((client) => {
-
-      return client.query(getByIdQuery({ ...options }))
-        .then(({ rows }) =>
           ({ rows, client })
         )
         .catch((err) => new Error(err))
+    )
+    .catch(err => new Error(err))
 
-    })
+
+export const getById = (options: GetById): Promise<ServiceResponse> =>
+  pool.connect()
+    .then((client: Client) =>
+      client.query(getByIdQuery({ ...options }))
+        .then(({ rows }: PGResponse) =>
+          ({ rows, client })
+        )
+        .catch((err) => new Error(err))
+    )
     .catch(err => new Error(err))
 
 // getAll('users').then(res => log(res))

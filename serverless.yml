@@ -67,6 +67,14 @@ functions:
           path: authors/{id}/notes
           cors: true
           authorizer: aws_iam
+  createNote:
+    handler: src/handler.createNote
+    events:
+      - http:
+          method: post
+          path: notes
+          cors: true
+          authorizer: aws_iam
 
 resources:
   Resources:

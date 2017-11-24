@@ -1,15 +1,29 @@
 // @flow
-import debug from 'debug'
-import query from '../postgres'
+// import debug from 'debug'
+import pool from '../postgres'
+import type { Client } from '../postgres'
+import type {
+  PGResponse,
+  ServiceResponse,
+} from '../services'
 import type {
   Table,
   Fields,
 } from './'
 
-const log = debug('notes:services:create')
+// const log = debug('notes:services:create')
 
-export const create = (table: Table, fields: Fields): Promise<*> =>
-  query.insert(fields, 'id')
-    .into(table)
-    .then((res) => log(res))
-    .catch((err) => log(err))
+export const createOrUpdate = (
+  table: Table,
+  fields: Fields,
+  query: (Fields) => string | Error
+): Promise<ServiceResponse> =>
+  pool.connect()
+    .then((client: Client) =>
+      client.query(query(fields))
+        .then(({ rows }: PGResponse): ServiceResponse =>
+          ({ rows, client })
+        )
+        .catch((error) => new Error(error))
+    )
+    .catch((error) => new Error(error))
